@@ -8,7 +8,7 @@
 
 **Aproximate Total Time (hrs): ...**
 
-**Link to GitHub Repository: https://github.com/Jacko7973/TOC-Project-1-crystalball
+**Link to GitHub Repository: https://github.com/Jacko7973/TOC-Project-1-crystalball**
 
 **List of included files:**
 
