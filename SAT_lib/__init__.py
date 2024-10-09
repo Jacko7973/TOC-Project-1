@@ -13,7 +13,7 @@ from ._SAT_utils_crystalball import SATExpression, SATClause, SATLiteral
 
 __all__ = ["SATExpression", "SATClause", "SATLiteral", "load_DIMACS_csv"]
 
-def load_DIMACS_csv(csv_path:str) -> list[str]:
+def load_DIMACS_csv(csv_path:str) -> list[dict]:
   test_cases = []
 
   current_expression = None
