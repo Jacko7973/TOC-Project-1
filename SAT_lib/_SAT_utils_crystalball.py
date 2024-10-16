@@ -5,6 +5,15 @@
 # Date: 10/9/2024
 
 import re
+from enum import Enum
+
+
+## Enums
+
+class Solution(Enum):
+    SATISFIABLE = "S"
+    UNSATISFIABLE = "U"
+    UNKNOWN = "?"
 
 
 ## Classes
@@ -23,13 +32,21 @@ class SATLiteral:
 
     @staticmethod
     def from_str(s: str):
-        m = re.match(r"(!)?([a-z])", s)
+        m = re.match(r"(!)?([a-z]+)", s)
         if not m or len(m.groups()) != 2:
             print(f"[INFO] Improperly formatted SATLiteral string: {s}")
             return None
 
         negate = (m.groups()[0] == "!")
         var = m.groups()[1]
+        print(var)
+        return SATLiteral(var, negate)
+
+
+    @staticmethod
+    def from_int(lit_int: int):
+        var = str(abs(lit_int))
+        negate = (lit_int < 0)
         return SATLiteral(var, negate)
 
 
@@ -61,6 +78,20 @@ class SATClause:
         return SATClause(literals)
 
 
+    @staticmethod
+    def from_list(l: list):
+        literals = []
+        for lit_int in l:
+            lit = SATLiteral.from_int(lit_int)
+            if not lit:
+                print(f"[INFO] Improperly formatted SATClause list: {l}")
+                return None
+            literals.append(lit)
+
+        return SATClause(literals)
+
+
+
     def get_variables(self) -> set[str]:
         var_set = set()
         for lit in self.literals:
@@ -72,8 +103,9 @@ class SATClause:
 
 class SATExpression:
 
-    def __init__(self, clauses: list[SATClause]) -> None:
+    def __init__(self, clauses: list[SATClause], solution:Solution=Solution.UNKNOWN) -> None:
         self.clauses: list[SATClause] = clauses
+        self.solution = solution
 
     def __call__(self, assignments: dict[str, bool]) -> bool:
         return all(c(assignments) for c in self.clauses)
@@ -94,6 +126,27 @@ class SATExpression:
         return SATExpression(clauses)
 
 
+    @staticmethod
+    def from_list(l: list):
+        clauses = []
+        for c_list in l:
+            c = SATClause.from_list(c_list)
+            if not c:
+                print(f"[INFO] Improperly formatted SATExpression list: {l}")
+                return None
+            clauses.append(c)
+
+        return SATExpression(clauses)
+
+    @property
+    def num_vars(self):
+        return len(self.get_variables())
+
+    @property
+    def ksat(self):
+        return max(len(c.literals) for c in self.clauses)
+
+
 
     def get_variables(self) -> set[str]:
         var_set = set()
@@ -102,4 +155,5 @@ class SATExpression:
                 var_set.add(lit.var)
 
         return var_set
+
 
