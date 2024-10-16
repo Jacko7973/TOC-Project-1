@@ -8,17 +8,23 @@
 import csv
 import itertools
 from string import ascii_lowercase
+import time
 from typing import Iterator
+import signal
 
 
 from ._SAT_utils_crystalball import SATExpression, SATClause, SATLiteral, Solution
 
-__all__ = ["SATExpression", "SATClause", "SATLiteral", "load_DIMACS_csv", "load_DIMACS_csv_v2"]
+__all__ = ["SATExpression", "SATClause", "SATLiteral", "Solution", "load_DIMACS_csv", "test_solver", "generate_assignments", "test_solver"]
 
 VARIABLES = list(a+b for a, b in itertools.product(ascii_lowercase, ascii_lowercase))
 
 
-def load_DIMACS_csv_v2(csv_path:str) -> Iterator[SATExpression]:
+class TimeoutException(Exception):
+  pass
+
+
+def load_DIMACS_csv(csv_path:str) -> Iterator[SATExpression]:
 
   with open(csv_path, "r") as f:
 
@@ -54,47 +60,94 @@ def load_DIMACS_csv_v2(csv_path:str) -> Iterator[SATExpression]:
           current_clause.append(item)
 
 
+def test_solver(solver, name: str, test_filename: str, out_filename: str, timeout: int = 300) -> None:
+  try:
+    test_cases = load_DIMACS_csv(test_filename)
+  except:
+    print(f"[ERR] Unable to load testcases from {test_filename}")
+    return
+
+  i = 0
+  data = []
+
+  def alarm_handler(signum, frame):
+    raise TimeoutException
+
+  signal.signal(signal.SIGALRM, alarm_handler)
+
+  for tc in test_cases:
+
+    print(f"[INFO] Testing case #{i}")
+
+    start = time.time()
+    signal.alarm(timeout)
+
+    try:
+      sol = Solution.SATISFIABLE if solver(tc) else Solution.UNSATISFIABLE
+      runtime = time.time() - start
+
+      if tc.solution == Solution.UNKNOWN:
+        tc.solution = sol
+
+      elif tc.solution != sol:
+        print(f"[INFO] Test Case Failed: {str(tc)}")
+        print(f"\tCorrect output: {tc.solution}")
+        print(f"\tProgram output: {sol}")
+        print("[INFO] Status... Failure")
+        sys.exit()
 
 
-def load_DIMACS_csv(csv_path:str) -> Iterator[SATExpression]:
-  test_cases = []
+      data.append((name, tc.ksat, tc.num_vars, tc.solution.value, runtime))
+      i += 1
 
-  current_expression = None
-  current_clause = SATClause([])
-  current_case = -1
-  with open(csv_path, "r") as f:
-    for record in csv.reader(f, delimiter=","):
-      if not record:
-        continue
+    except KeyboardInterrupt:
+      print("[INFO] Interrupt recieved. Exiting...")
+      break
 
-      if record[0] == "c":
-        current_expression = SATExpression([])
-        current_clause = SATClause([])
+    except TimeoutException:
+      print("[INFO] Timeout exceeded. Exiting...")
+      break
 
-        current_case += 1
-        test_cases.append({})
+    finally:
+      signal.alarm(0)
 
-        test_cases[current_case]["cnf"] = current_expression
-        test_cases[current_case]["k-SAT"] = int(record[2])
-        test_cases[current_case]["satisfiable"] = (record[3].upper() == "S")
+  print("[INFO] Status... OK")
+  print(f"[INFO] Passed {i} tests")
 
-      elif record[0] == "p":
-        test_cases[current_case]["variables"] = int(record[2])
-        test_cases[current_case]["clauses"] = int(record[3])
+  print(f"[INFO] Saving results to {out_filename}")
 
-      else:
-        for item in record:
-          if item == "0":
-            current_expression.clauses.append(current_clause)
-            current_clause = SATClause([])
-            break
+  with open(out_filename, "w") as f:
+    writer = csv.writer(f, delimiter=",")
+    for row in data:
+      writer.writerow(row)
 
-          var_num = int(item)
-          var = VARIABLES[abs(var_num) - 1]
-          negate = (var_num < 0)
-          lit = SATLiteral(var, negate)
 
-          current_clause.literals.append(lit)
+def generate_assignments(variables: list[str], assignment:dict[str,bool]={}) -> Iterator[dict[str,bool]]:
+  """Iterativley generate boolean assignments for the given variable set.
 
-  return test_cases
+  @param variables list[int]
+  """
+  if not variables:
+    yield assignment
+    return
+
+  var = variables[0]
+  for value in (False, True):
+    assignment[var] = value
+    yield from generate_assignments(variables[1:], assignment)
+
+
+
+def bruteforce(ex: SATExpression, verbose: bool = False) -> bool:
+
+    verbose and print(f"Testing expression: " + str(ex) + " ", end="")
+
+    for assignment in generate_assignments(list(ex.get_variables())):
+        if not ex(assignment): continue
+
+        verbose and print("SATISFIABLE")
+        return True
+
+    verbose and print("UNSATISFIABLE")
+    return False
 
