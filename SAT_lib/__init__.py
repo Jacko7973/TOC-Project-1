@@ -5,6 +5,7 @@
 # Date: 10/9/2024
 
 
+import sys
 import csv
 import itertools
 from string import ascii_lowercase
@@ -68,7 +69,7 @@ def test_solver(solver, name: str, test_filename: str, out_filename: str, timeou
     return
 
   i = 0
-  data = []
+  data = [("name", "kSAT", "vars", "solution", "runtime")]
 
   def alarm_handler(signum, frame):
     raise TimeoutException
