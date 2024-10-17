@@ -1,0 +1,11 @@
+name,kSAT,vars,solution,runtime
+DumbSAT_unit_clause,2,4,U,8.463859558105469e-05
+DumbSAT_unit_clause,2,4,S,0.00019311904907226562
+DumbSAT_unit_clause,2,4,U,9.036064147949219e-05
+DumbSAT_unit_clause,2,4,S,7.319450378417969e-05
+DumbSAT_unit_clause,2,4,S,0.0001544952392578125
+DumbSAT_unit_clause,2,4,S,0.00014662742614746094
+DumbSAT_unit_clause,2,4,S,6.341934204101562e-05
+DumbSAT_unit_clause,2,4,U,4.76837158203125e-05
+DumbSAT_unit_clause,2,4,U,0.00016379356384277344
+DumbSAT_unit_clause,2,4,U,0.00016641616821289062
