@@ -1,3 +1,4 @@
+name,kSAT,vars,solution,runtime
 bruteforce,2,4,?,5.7697296142578125e-05
 bruteforce,2,4,?,0.00012111663818359375
 bruteforce,2,4,?,3.5762786865234375e-05

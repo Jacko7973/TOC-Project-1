@@ -1,58 +1,71 @@
-#!/usr/bin/python3
+import sys
+import pathlib
+from copy import deepcopy
+from typing import Optional
 
-from SAT_lib import SATExpression, SATClause, SATLiteral
+sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.resolve()))
 
-def simplify(expression: TwoSATExpression, var: str, value: bool) -> TwoSATExpression:
-    clauses_prime = []
-    for clause in expression.clauses:
-        literals_prime = []
-        clause_satisfied = False
-        for literal in clause.literals:
-            if literal.var == var:
-                if literal(value):
-                    clause_satisfied = True
-                    break
-            else:
-                literals_prime.append(literal)
-        if not clause_satisfied and literals_prime:
-            clauses_prime.append(SATClause(literals_prime))
-    return TwoSATExpression(clauses_prime)
+from SAT_lib import SATExpression, test_solver
 
-def dpll(expression: TwoSATExpression, interpretation: dict[str,bool] = None) -> dict[str,bool] | None:
-    if interpretation is None:
-        interpretation = {}
 
-    # Base case: if ∆ = ∅, return I beacuses its satisfiable
-    if not expression.clauses:
-        return interpretation
+# Reference: UPenn Computer Science
+# URL: https://www.cis.upenn.edu/~cis1890/files/Lecture3.pdf
+def dpll_v2(ex: SATExpression, assignments: dict[str, bool] = {}) -> Optional[dict[str, bool]]:
 
-    # Base case: if square ∈ ∆, return unsatisfiable
-    if any(not clause.literals for clause in expression.clauses):
+    ex = deepcopy(ex)
+
+    # Remove redundant literals / clauses
+    for c in ex.clauses[:]:
+        # Within a clause, remove any literals that evaluate to False
+        for lit in c.literals[:]:
+            if lit.var not in assignments: continue
+            if not lit(assignments[lit.var]):
+                c.literals.remove(lit)
+
+        # Remove any clauses that evaluate to True
+        if any(var not in assignments for var in c.get_variables()):
+            continue
+        if c(assignments):
+            ex.clauses.remove(c)
+
+    # Base Case: Empty set of clauses
+    if len(ex.clauses) == 0:
+        return assignments
+
+    # Base Case: Empty clauses exists
+    if any(len(c.literals) == 0 for c in ex.clauses):
         return None
 
-    # Unit propagation
-    for clause in expression.clauses:
-        if len(clause.literals) == 1:
-            lit = clause.literals[0]
-            interpretation_prime = interpretation.copy()
-            interpretation_prime[lit.var] = not lit.negate
-            return dpll(simplify(expression, lit.var, not lit.negate), interpretation_prime)
+    #Recursive Case: Contains unit clause
+    new_assignments = assignments.copy()
+    for c in ex.clauses[:]:
+        if (len(c.literals) != 1): continue
+        new_assignments[c.literals[0].var] = not c.literals[0].negate
+        return dpll_v2(ex, new_assignments)
 
-    # Splitting rule
-    # Select some variable v which occurs in ∆
-    var = next(iter(set(lit.var for clause in expression.clauses for lit in clause.literals) - set(interpretation.keys())))
 
-    # Try True (d = T)
-    interpretation_prime = interpretation.copy()
-    interpretation_prime[var] = True
-    result = dpll(simplify(expression, var, True), interpretation_prime)
-    if result is not None:
-        return result
+    # Recursive Case: Try assignment
+    new_assignments = assignments.copy()
+    var = None
+    for v in ex.get_variables():
+        if v in new_assignments: continue
+        var = v
+        break
+    else:
+        return None
 
-    # Try False (d = F)
-    interpretation_prime = interpretation.copy()
-    interpretation_prime[var] = False
-    return dpll(simplify(expression, var, False), interpretation_prime)   
+    for value in (False, True):
+        new_assignments[var] = value
+        if ret := dpll_v2(ex, new_assignments):
+            return ret
+        del new_assignments[var]
 
-def main():
-    pass
+    return None
+
+
+def test_dpll(ex: SATExpression) -> bool:
+    return dpll_v2(ex, {})
+
+
+if __name__ == "__main__":
+    test_solver(test_dpll, "dpll", sys.argv[1], sys.argv[2])
