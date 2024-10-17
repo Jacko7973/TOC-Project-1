@@ -95,7 +95,7 @@ def test_solver(solver, name: str, test_filename: str, out_filename: str, timeou
         print(f"\tCorrect output: {tc.solution}")
         print(f"\tProgram output: {sol}")
         print("[INFO] Status... Failure")
-        sys.exit()
+        break
 
 
       data.append((name, tc.ksat, tc.num_vars, tc.solution.value, runtime))
