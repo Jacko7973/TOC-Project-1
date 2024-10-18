@@ -4,8 +4,9 @@
 # Author: Jack O'Connor
 # Date: 10/9/2024
 
-import re
 from enum import Enum
+import math
+import re
 
 
 ## Enums
@@ -30,6 +31,16 @@ class SATLiteral:
     def __str__(self) -> str:
         return f"{'!' if self.negate else ''}{self.var}"
 
+    def __int__(self) -> int:
+        int_value = 0
+        if self.var.isdigit():
+            int_value = int(self.var)
+        else:
+            for i, char in enumerate(self.var):
+                int_value += int((ord(char) - ord("a")) * math.pow(26, i))
+        return int_value * (-1 if self.negate else 1)
+
+
     @staticmethod
     def from_str(s: str):
         m = re.match(r"(!)?([a-z]+)", s)
@@ -39,7 +50,6 @@ class SATLiteral:
 
         negate = (m.groups()[0] == "!")
         var = m.groups()[1]
-        print(var)
         return SATLiteral(var, negate)
 
 
@@ -63,6 +73,15 @@ class SATClause:
     def __str__(self) -> str:
         return "(" + " | ".join(
                 [f"{'!' if l.negate else ''}{l.var}" for l in self.literals]) + ")"
+
+
+    def to_list(self) -> list[int]:
+        # Convert to a clause list of integers
+        clause_list = []
+        for l in self.literals:
+            clause_list.append(int(l))
+        return clause_list
+
 
     @staticmethod
     def from_str(s: str):
@@ -112,6 +131,15 @@ class SATExpression:
 
     def __str__(self) -> str:
         return " & ".join(str(c) for c in self.clauses)
+
+
+    def to_list(self) -> list[int]:
+        # Convert to a wff list of integers
+        ex_list = []
+        for c in self.clauses:
+            ex_list.append(c.to_list())
+        return ex_list
+
 
     @staticmethod
     def from_str(s: str):
