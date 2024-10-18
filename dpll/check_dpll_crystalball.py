@@ -13,8 +13,8 @@ from dpll_crystalball import dpll
 
 # Globals
 
-INPUT_FILE = "../SAT_lib/data/kSAT.cnf.csv"
-OUTPUT_FILE = "test_data.csv"
+INPUT_FILE = "../SAT_lib/data/data_kSAT_crystalball.cnf.csv"
+OUTPUT_FILE = "output_test_data_crystalball.csv"
 
 def test_dpll(ex: SATExpression) -> bool:
     return dpll(ex, {})

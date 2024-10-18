@@ -10,8 +10,9 @@ from SAT_lib import SATExpression, test_solver
 
 
 # Import DumbSAT checking algorithm
-from DumbSAT import check as DumbSAT
+from DumbSAT_crystalball import check as DumbSAT
 
+# Import DumbSAT improvements
 from MyDumbSAT_iter_crystalball import MyDumbSAT_iter
 from MyDumbSAT_both_crystalball import MyDumbSAT_both
 
@@ -24,8 +25,8 @@ SOLVERS = {
     "MyDumbSAT_both": MyDumbSAT_both
 }
 
-INPUT_FILE = "../SAT_lib/data/kSAT.cnf.csv"
-OUTPUT_FILE = "test_data.csv"
+INPUT_FILE = "../SAT_lib/data/data_kSAT_crystalball.cnf.csv"
+OUTPUT_FILE = "output_test_data_crystalball.csv"
 
 
 ## Functions
