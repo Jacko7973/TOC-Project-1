@@ -43,5 +43,5 @@ def MyDumbSAT_both(wff, n_vars, n_clauses, assignment):
 
 if __name__ == "__main__":
   # Test a simple wff with a unit clause
-  print(MyDumbSAT_unit([[-1, 2], [-1, -2], [-1]], 2, 3, []))
+  print(MyDumbSAT_both([[-1, 2], [-1, -2], [-1]], 2, 3, []))
 

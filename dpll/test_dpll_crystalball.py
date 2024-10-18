@@ -28,7 +28,7 @@ def main():
 
     outfile_name = OUTPUT_FILE
     if len(sys.argv) >= 3:
-        infile_name = sys.argv[2]
+        outfile_name = sys.argv[2]
 
     test_solver(test_dpll, "dpll", infile_name, outfile_name)
 

@@ -12,7 +12,7 @@ from SAT_lib import SATExpression, test_solver
 # Import DumbSAT checking algorithm
 from DumbSAT import check as DumbSAT
 
-from MyDumbSAT_inc_crystalball import MyDumbSAT_inc
+from MyDumbSAT_iter_crystalball import MyDumbSAT_iter
 from MyDumbSAT_both_crystalball import MyDumbSAT_both
 
 
@@ -20,7 +20,7 @@ from MyDumbSAT_both_crystalball import MyDumbSAT_both
 
 SOLVERS = {
     "DumbSAT": DumbSAT,
-    "MyDumbSAT_inc": MyDumbSAT_inc,
+    "MyDumbSAT_iter": MyDumbSAT_iter,
     "MyDumbSAT_both": MyDumbSAT_both
 }
 
