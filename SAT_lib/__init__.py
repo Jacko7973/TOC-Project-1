@@ -16,7 +16,7 @@ import signal
 
 from ._SAT_utils_crystalball import SATExpression, SATClause, SATLiteral, Solution
 
-__all__ = ["SATExpression", "SATClause", "SATLiteral", "Solution", "load_DIMACS_csv", "test_solver", "generate_assignments", "test_solver"]
+__all__ = ["SATExpression", "SATClause", "SATLiteral", "Solution", "load_DIMACS_csv", "test_solver", "test_solver"]
 
 VARIABLES = list(a+b for a, b in itertools.product(ascii_lowercase, ascii_lowercase))
 
@@ -122,33 +122,4 @@ def test_solver(solver, name: str, test_filename: str, out_filename: str, timeou
     for row in data:
       writer.writerow(row)
 
-
-def generate_assignments(variables: list[str], assignment:dict[str,bool]={}) -> Iterator[dict[str,bool]]:
-  """Iterativley generate boolean assignments for the given variable set.
-
-  @param variables list[int]
-  """
-  if not variables:
-    yield assignment
-    return
-
-  var = variables[0]
-  for value in (False, True):
-    assignment[var] = value
-    yield from generate_assignments(variables[1:], assignment)
-
-
-
-def bruteforce(ex: SATExpression, verbose: bool = False) -> bool:
-
-    verbose and print(f"Testing expression: " + str(ex) + " ", end="")
-
-    for assignment in generate_assignments(list(ex.get_variables())):
-        if not ex(assignment): continue
-
-        verbose and print("SATISFIABLE")
-        return True
-
-    verbose and print("UNSATISFIABLE")
-    return False
 
