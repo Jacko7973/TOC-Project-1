@@ -10,20 +10,32 @@ from SAT_lib import SATExpression, test_solver
 
 
 # Import DumbSAT checking algorithm
+<<<<<<< HEAD
 from DumbSAT import check as DumbSAT
 
 from MyDumbSAT_crystalball import MyDumbSAT
 # Import DumbSAT with unit clause optimization
 from MyDumbSAT_both_crystalball import MyDumbSAT_both
+=======
+from DumbSAT import check
+
+# Import DumbSAT with unit clause algorithm
+from DumbSAT_unit_clause_crystalball import check_unit_clause
+>>>>>>> 2d8928069c889b0bbd97be544e3d79b952b730cc
 
 
 
 ## Constants
 
 SOLVERS = {
+<<<<<<< HEAD
     "DumbSAT": DumbSAT,
     "MyDumbSAT": MyDumbSAT,
     "MyDumbSAT_both": MyDumbSAT_both
+=======
+    "DumbSAT": check,
+    "DumbSAT_unit_clause": check_unit_clause,
+>>>>>>> 2d8928069c889b0bbd97be544e3d79b952b730cc
 }
 
 INPUT_FILE = "../SAT_lib/data/kSAT.cnf.csv"
