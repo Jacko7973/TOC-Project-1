@@ -1,4 +1,4 @@
-#/usr/bin/env python3
+#!/usr/bin/env python3
 
 import sys
 import pathlib
@@ -12,8 +12,7 @@ from SAT_lib import SATExpression, test_solver
 # Import DumbSAT checking algorithm
 from DumbSAT import check as DumbSAT
 
-from DumbSAT import check as DumbSAT
-from MyDumbSAT_crystalball import MyDumbSAT
+from MyDumbSAT_inc_crystalball import MyDumbSAT_inc
 from MyDumbSAT_both_crystalball import MyDumbSAT_both
 
 
@@ -21,7 +20,7 @@ from MyDumbSAT_both_crystalball import MyDumbSAT_both
 
 SOLVERS = {
     "DumbSAT": DumbSAT,
-    "MyDumbSAT": MyDumbSAT,
+    "MyDumbSAT_inc": MyDumbSAT_inc,
     "MyDumbSAT_both": MyDumbSAT_both
 }
 
@@ -32,12 +31,10 @@ OUTPUT_FILE = "test_data.csv"
 ## Functions
 
 def tester_create(check_fn):
-    """ Create a function wrapper so DumbSAT implementation
-    can be checked using the SAT_lib library.
-    """
+    # Create a function wrapper so DumbSAT implementation
+    # can be checked using the SAT_lib library.
 
     def tester(ex: SATExpression) -> bool:
-        # Use DumbSAT to solve SATExpression
         wff_list = ex.to_list()
         n_vars = ex.num_vars
         n_clauses = len(ex.clauses)
@@ -55,8 +52,13 @@ def main():
     # Defaults to unmodified DumbSAT
 
     solver_name = "DumbSAT"
-    if len(sys.argv) >= 2 and sys.argv[1] in SOLVERS:
-        solver_name = sys.argv[1]
+    if len(sys.argv) >= 2:
+        if sys.argv[1] in SOLVERS:
+            solver_name = sys.argv[1]
+        else:
+            print("[ERROR] Please select one of the following solvers to test")
+            print(" ".join(SOLVERS.keys()))
+            return
 
     infile_name = INPUT_FILE
     if len(sys.argv) >= 3:

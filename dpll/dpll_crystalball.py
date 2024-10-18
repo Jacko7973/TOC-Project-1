@@ -10,7 +10,7 @@ from SAT_lib import SATExpression, test_solver
 
 # Reference: UPenn Computer Science
 # URL: https://www.cis.upenn.edu/~cis1890/files/Lecture3.pdf
-def dpll_v2(ex: SATExpression, assignments: dict[str, bool] = {}) -> Optional[dict[str, bool]]:
+def dpll(ex: SATExpression, assignments: dict[str, bool] = {}) -> Optional[dict[str, bool]]:
 
     ex = deepcopy(ex)
 
@@ -41,7 +41,7 @@ def dpll_v2(ex: SATExpression, assignments: dict[str, bool] = {}) -> Optional[di
     for c in ex.clauses[:]:
         if (len(c.literals) != 1): continue
         new_assignments[c.literals[0].var] = not c.literals[0].negate
-        return dpll_v2(ex, new_assignments)
+        return dpll(ex, new_assignments)
 
 
     # Recursive Case: Try assignment
@@ -56,16 +56,9 @@ def dpll_v2(ex: SATExpression, assignments: dict[str, bool] = {}) -> Optional[di
 
     for value in (False, True):
         new_assignments[var] = value
-        if ret := dpll_v2(ex, new_assignments):
+        if ret := dpll(ex, new_assignments):
             return ret
         del new_assignments[var]
 
     return None
 
-
-def test_dpll(ex: SATExpression) -> bool:
-    return dpll_v2(ex, {})
-
-
-if __name__ == "__main__":
-    test_solver(test_dpll, "dpll", sys.argv[1], sys.argv[2])
