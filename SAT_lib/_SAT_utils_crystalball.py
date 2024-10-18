@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# TOC-Project-1-crystalball
-# SAT_lib/_SAT_utils_crystalball.py
-# Author: Jack O'Connor
-# Date: 10/9/2024
 
 from enum import Enum
 import math
@@ -20,6 +16,7 @@ class Solution(Enum):
 ## Classes
 
 class SATLiteral:
+    # Class representing a single literal (negated? variable)
 
     def __init__(self, var: str, negate: bool) -> None:
         self.var = var
@@ -43,7 +40,7 @@ class SATLiteral:
 
     @staticmethod
     def from_str(s: str):
-        m = re.match(r"(!)?([a-z]+)", s)
+        m = re.match(r"(!)?([0-9a-zA-Z]+)", s)
         if not m or len(m.groups()) != 2:
             print(f"[INFO] Improperly formatted SATLiteral string: {s}")
             return None
@@ -62,6 +59,7 @@ class SATLiteral:
 
 
 class SATClause:
+    # Class representing the logical OR of a set of literals
 
     def __init__(self, literals: list[SATLiteral]) -> None:
         self.literals = literals
@@ -121,6 +119,7 @@ class SATClause:
 
 
 class SATExpression:
+    # Class representing the logical AND of a set of clauses
 
     def __init__(self, clauses: list[SATClause], solution:Solution=Solution.UNKNOWN) -> None:
         self.clauses: list[SATClause] = clauses

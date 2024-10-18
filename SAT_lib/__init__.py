@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
-# TOC-Project-1-crystalball
-# SAT_lib/__init__.py
-# Author: Jack O'Connor
-# Date: 10/9/2024
-
 
 import sys
 import csv
-import itertools
-from string import ascii_lowercase
 import time
 from typing import Iterator
 import signal
 
-
+# Import SAT classes
 from ._SAT_utils_crystalball import SATExpression, SATClause, SATLiteral, Solution
 
 __all__ = ["SATExpression", "SATClause", "SATLiteral", "Solution", "load_DIMACS_csv", "test_solver", "test_solver"]
-
-VARIABLES = list(a+b for a, b in itertools.product(ascii_lowercase, ascii_lowercase))
 
 
 class TimeoutException(Exception):
@@ -26,6 +17,8 @@ class TimeoutException(Exception):
 
 
 def load_DIMACS_csv(csv_path:str) -> Iterator[SATExpression]:
+  # Load in test cases from DIMACS csv format
+  # Generates SATExpression objects
 
   with open(csv_path, "r") as f:
 
@@ -37,6 +30,7 @@ def load_DIMACS_csv(csv_path:str) -> Iterator[SATExpression]:
         continue
 
       if record[0] == "c":
+        # Beginning of new test case
         if current_ex:
           ex = SATExpression.from_list(current_ex)
           ex.solution = satisfiable
@@ -51,6 +45,7 @@ def load_DIMACS_csv(csv_path:str) -> Iterator[SATExpression]:
 
       else:
         for item in record:
+          # Beginning of new clause
           if not item: continue
           item = int(item)
           if item == 0:
@@ -62,6 +57,11 @@ def load_DIMACS_csv(csv_path:str) -> Iterator[SATExpression]:
 
 
 def test_solver(solver, name: str, test_filename: str, out_filename: str, timeout: int = 300) -> None:
+  # Given a solver function, test and benchmark
+  # Get input files from test_filename (DIMACS csv format)
+  # Write output to out_filename (name, kSAT, nvars, solution, runtime) (csv format)
+  # Stop when testcase takes `timeout` seconds or more to run
+
   try:
     test_cases = load_DIMACS_csv(test_filename)
   except:
@@ -91,6 +91,7 @@ def test_solver(solver, name: str, test_filename: str, out_filename: str, timeou
         tc.solution = sol
 
       elif tc.solution != sol:
+        # Test case failed... End testing
         print(f"[INFO] Test Case Failed: {str(tc)}")
         print(f"\tCorrect output: {tc.solution}")
         print(f"\tProgram output: {sol}")
@@ -102,10 +103,12 @@ def test_solver(solver, name: str, test_filename: str, out_filename: str, timeou
       i += 1
 
     except KeyboardInterrupt:
+      # Interrupted... end testing
       print("[INFO] Interrupt recieved. Exiting...")
       break
 
     except TimeoutException:
+      # Timeout reached... end testing
       print("[INFO] Timeout exceeded. Exiting...")
       break
 
@@ -117,6 +120,7 @@ def test_solver(solver, name: str, test_filename: str, out_filename: str, timeou
 
   print(f"[INFO] Saving results to {out_filename}")
 
+  # Write results to output file
   with open(out_filename, "w") as f:
     writer = csv.writer(f, delimiter=",")
     for row in data:
